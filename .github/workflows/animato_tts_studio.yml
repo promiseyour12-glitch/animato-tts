@@ -54,7 +54,7 @@ jobs:
           path: ${{ env.P1 }}
           key: ${{ env.K1 }}
       - name: setup
-        run: python3 tts_studio.py setup >> r.log 2>&1
+        run: python3 tts_studio.py setup 2>&1 | tee -a r.log
       - if: steps.a.outputs.cache-hit != 'true'
         continue-on-error: true
         uses: actions/cache/save@v4
@@ -62,6 +62,6 @@ jobs:
           path: ${{ env.P1 }}
           key: ${{ env.K1 }}
       - name: serve
-        run: python3 tts_studio.py studio >> r.log 2>&1
+        run: python3 tts_studio.py studio 2>&1 | tee -a r.log
       - if: failure() && env.WARMUP != 'true'
         run: python3 -c "import json,os,urllib.request;t=open('r.log',errors='ignore').read()[-300:] if os.path.exists('r.log') else '';urllib.request.urlopen(urllib.request.Request(os.environ['APP_URL']+'/api/tts/runner/bye?token='+os.environ['SESSION_TOKEN'],json.dumps({'token':os.environ['SESSION_TOKEN'],'error':t}).encode(),{'content-type':'application/json'}),timeout=20)" || true
